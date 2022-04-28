@@ -25,13 +25,32 @@ public class Parser {
     }
   }
 
-  void digit(){
-
+  void expr(){
+    digit();
+    oper();
   }
 
-  void expr(){
-    expr();
-    match('+');
-    digit();
+  void digit(){
+    if(Character.isDigit(peek())){
+      match(peek());
+    } else {
+      throw new Error("Syntax error");
+    }
+  }
+
+  void oper(){
+    if(peek() == '+'){
+      match('+');
+      digit();
+      oper();
+    } else if(peek() == '-'){
+      match('-');
+      digit();
+      oper();
+    } else if(peek() == 0){
+      //nada
+    } else {
+      throw new Error("Syntax error");
+    }
   }
 }
