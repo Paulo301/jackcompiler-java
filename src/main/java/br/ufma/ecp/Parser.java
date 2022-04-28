@@ -5,7 +5,7 @@ public class Parser {
   private byte[] input;
   private int current;
 
-  private Parser(byte[] input){
+  public Parser(byte[] input){
     this.input = input;
   }
 
@@ -25,6 +25,10 @@ public class Parser {
     }
   }
 
+  void parser(){
+    expr();
+  }
+
   void expr(){
     digit();
     oper();
@@ -32,6 +36,7 @@ public class Parser {
 
   void digit(){
     if(Character.isDigit(peek())){
+      System.out.println(peek());
       match(peek());
     } else {
       throw new Error("Syntax error");
@@ -42,10 +47,12 @@ public class Parser {
     if(peek() == '+'){
       match('+');
       digit();
+      System.out.println("+");
       oper();
     } else if(peek() == '-'){
       match('-');
       digit();
+      System.out.println("-");
       oper();
     } else if(peek() == 0){
       //nada
