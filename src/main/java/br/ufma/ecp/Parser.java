@@ -6,6 +6,12 @@ public class Parser {
   }
 
   void expr(){
-    
+    expr();
+    match('+');
+    digit();
+  }
+
+  void match(char c){
+
   }
 }
