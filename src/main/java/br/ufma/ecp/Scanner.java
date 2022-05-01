@@ -21,6 +21,10 @@ public class Scanner {
       return number();
     }
 
+    if(Character.isAlphabetic(ch)){
+      return identifier();
+    }
+
     switch(ch){
       case '+':
         advance();
@@ -31,10 +35,22 @@ public class Scanner {
       case 0:
         return new Token(TokenType.EOF, "EOF");
       default:
-        break;
+        advance();
+        return new Token(TokenType.ILLEGAL, Character.toString(ch));
     }
+  }
 
-    return null;
+  private boolean isAlphanumeric(char ch){
+    return Character.isLetter(ch) || Character.isDigit(ch);
+  }
+
+  private Token identifier(){
+    while(isAlphanumeric(peek())){
+      advance();
+    }
+    String s = new String(input, start, current-start, StandardCharsets.UTF_8);
+    Token token = new Token(TokenType.IDENTIFIER, s);
+    return token;
   }
 
   private Token number(){

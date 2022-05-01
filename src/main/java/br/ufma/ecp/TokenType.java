@@ -5,5 +5,9 @@ public enum TokenType {
 
   NUMBER,
 
-  EOF
+  IDENTIFIER,
+
+  EOF,
+
+  ILLEGAL
 }

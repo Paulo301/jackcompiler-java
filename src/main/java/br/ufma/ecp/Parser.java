@@ -18,7 +18,7 @@ public class Parser {
     if(currentToken.type == type){
       nextToken();
     } else {
-      throw new Error("Syntax error");
+      throw new Error("Syntax error - expected " + type + " found "+ currentToken.lexeme);
     }
   }
 
@@ -50,7 +50,7 @@ public class Parser {
     } else if(currentTokenIs(TokenType.EOF)){
       //nada
     } else {
-      throw new Error("Syntax error");
+      throw new Error("Syntax error found "+currentToken.lexeme);
     }
   }
 
