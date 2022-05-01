@@ -14,6 +14,8 @@ public class Scanner {
   }
 
   public Token nextToken() {
+    skipWhitespace();
+
     start = current;
     char ch = peek();
 
@@ -37,6 +39,15 @@ public class Scanner {
       default:
         advance();
         return new Token(TokenType.ILLEGAL, Character.toString(ch));
+    }
+  }
+
+  private void skipWhitespace(){
+    char ch = peek();
+
+    while(ch == ' ' || ch == '\r' || ch == '\t' || ch == '\n'){
+      advance();
+      ch = peek();
     }
   }
 
@@ -67,14 +78,6 @@ public class Scanner {
 
     if(ch != 0){
       current++;
-    }
-  }
-
-  private void match(char c){
-    if(c == peek()){
-      current++;
-    } else {
-      throw new Error("Syntax error");
     }
   }
 
