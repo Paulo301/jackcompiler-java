@@ -2,26 +2,23 @@ package br.ufma.ecp;
 
 public class Parser {
 
-  private byte[] input;
-  private int current;
+  private Scanner scan;
+  private Token currentToken;
 
   public Parser(byte[] input){
-    this.input = input;
+    this.scan = new Scanner(input);
+    nextToken();
   }
 
-  private void match(char c){
-    if(c == peek()){
-      current++;
+  private void nextToken(){
+    this.currentToken = scan.nextToken();
+  }
+
+  private void match(TokenType type){
+    if(currentToken.type == type){
+      nextToken();
     } else {
       throw new Error("Syntax error");
-    }
-  }
-
-  private char peek(){
-    if(current < input.length){
-      return (char)input[current];
-    } else {
-      return 0;
     }
   }
 
@@ -30,34 +27,34 @@ public class Parser {
   }
 
   void expr(){
-    digit();
+    number();
     oper();
   }
 
-  void digit(){
-    if(Character.isDigit(peek())){
-      System.out.println("push " + peek());
-      match(peek());
-    } else {
-      throw new Error("Syntax error");
-    }
+  void number(){
+    System.out.println("push " + currentToken.lexeme);
+    match(TokenType.NUMBER);
   }
 
   void oper(){
-    if(peek() == '+'){
-      match('+');
-      digit();
+    if(currentTokenIs(TokenType.PLUS)){
+      match(TokenType.PLUS);
+      number();
       System.out.println("add");
       oper();
-    } else if(peek() == '-'){
-      match('-');
-      digit();
+    } else if(currentTokenIs(TokenType.MINUS)){
+      match(TokenType.MINUS);
+      number();
       System.out.println("sub");
       oper();
-    } else if(peek() == 0){
+    } else if(currentTokenIs(TokenType.EOF)){
       //nada
     } else {
       throw new Error("Syntax error");
     }
+  }
+
+  boolean currentTokenIs(TokenType type){
+    return currentToken.type == type;
   }
 }
