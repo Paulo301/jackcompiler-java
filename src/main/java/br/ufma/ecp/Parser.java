@@ -27,8 +27,18 @@ public class Parser {
   }
 
   void expr(){
-    number();
+    term();
     oper();
+  }
+
+  void term(){
+    if(currentTokenIs(TokenType.NUMBER)){
+      number();
+    } else if(currentTokenIs(TokenType.IDENTIFIER)){
+      identifier();
+    } else {
+      throw new Error("Syntax error found "+currentToken.lexeme);
+    }
   }
 
   void number(){
@@ -36,15 +46,20 @@ public class Parser {
     match(TokenType.NUMBER);
   }
 
+  void identifier(){
+    System.out.println("push " + currentToken.lexeme);
+    match(TokenType.IDENTIFIER);
+  }
+
   void oper(){
     if(currentTokenIs(TokenType.PLUS)){
       match(TokenType.PLUS);
-      number();
+      term();
       System.out.println("add");
       oper();
     } else if(currentTokenIs(TokenType.MINUS)){
       match(TokenType.MINUS);
-      number();
+      term();
       System.out.println("sub");
       oper();
     } else if(currentTokenIs(TokenType.EOF)){
