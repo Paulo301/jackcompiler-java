@@ -1,7 +1,8 @@
 package br.ufma.ecp;
 
 public enum TokenType {
-  PLUS, MINUS,
+  PLUS, MINUS, ASSIGN, ASTERISK, SLASH, AND, OR, NOT, DOT, LT, GT, COMMA, 
+  SEMICOLON, LPAREN, RPAREN, LBRACE, RBRACE, LBRACKET, RBRACKET,
 
   NUMBER,
 
