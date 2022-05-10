@@ -34,6 +34,10 @@ public class Token {
       categoria = "keyword";
     } else if(categoria == "NUMBER"){
       categoria = "integerConstant";
+    } else if(categoria == "IDENTIFIER"){
+      categoria = "identifier";
+    }  else if(categoria == "STRING"){
+      categoria = "stringConstant";
     }
 
     return "<" + categoria + ">" + representante + "</" + categoria + ">";

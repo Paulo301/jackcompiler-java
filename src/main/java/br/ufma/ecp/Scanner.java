@@ -45,6 +45,7 @@ public class Scanner {
 
   public Token nextToken() {
     skipWhitespace();
+    skipComment();
 
     start = current;
     char ch = peek();
@@ -53,8 +54,12 @@ public class Scanner {
       return number();
     }
 
-    if(Character.isAlphabetic(ch)){
+    if(isIdentifierBegin(ch)){
       return identifier();
+    }
+
+    if(ch == '"'){
+      return stringValue();
     }
 
     switch(ch){
@@ -132,18 +137,76 @@ public class Scanner {
     }
   }
 
+  private void skipComment(){
+    char ch = peek();
+
+    if(ch == '/'){
+      if((current+1) < input.length){
+        char nextCh = (char)input[current+1];
+        if(nextCh == '/'){
+          while(ch != '\n'){
+            advance();
+            ch = peek();
+          }
+          advance();
+          skipWhitespace();
+          skipComment();
+        } else if(nextCh == '*'){
+          boolean commentOpen = true;
+          while(commentOpen){
+            if(ch != '*'){
+              advance();
+              ch = peek();
+            } else {
+              if((current+1) < input.length){
+                if((char)input[current+1] == '/'){
+                  advance();
+                  ch = peek();
+                  commentOpen = false;
+                } else {
+                  advance();
+                  ch = peek();
+                }
+              } else {
+                throw new Error("Syntax error - comment not closed");
+              }
+            }
+          }
+          advance();
+          skipWhitespace();
+          skipComment();
+        }
+      }
+    }
+  }
+
   private boolean isAlphanumeric(char ch){
     return Character.isLetter(ch) || Character.isDigit(ch);
   }
 
+  private boolean isIdentifierBegin(char ch){
+    return Character.isLetter(ch) || (ch == '_');
+  }
+
   private Token identifier(){
-    while(isAlphanumeric(peek())){
+    while(isAlphanumeric(peek()) || (peek() == '_')){
       advance();
     }
     String id = new String(input, start, current-start, StandardCharsets.UTF_8);
     TokenType type = keywords.get(id);
     if(type == null) type = TokenType.IDENTIFIER;
     Token token = new Token(type, id);
+    return token;
+  }
+
+  private Token stringValue(){
+    advance();
+    while(peek() != '"'){
+      advance();
+    }
+    advance();
+    String id = new String(input, start+1, current-start-2, StandardCharsets.UTF_8);
+    Token token = new Token(TokenType.STRING, id);
     return token;
   }
 

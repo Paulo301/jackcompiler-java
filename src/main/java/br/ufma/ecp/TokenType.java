@@ -6,6 +6,8 @@ public enum TokenType {
 
   NUMBER,
 
+  STRING,
+
   IDENTIFIER,
 
   //keywords
