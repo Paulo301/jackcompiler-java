@@ -37,11 +37,55 @@ public class Parser {
   void parserExpression() {
     System.out.println("<expression>");
     parserTerm();
-    while(peekTokenIs(TokenType.PLUS)){
-      expectPeek(TokenType.PLUS);
+    while(peekIsOperator()){
+      expectPeekOperator();
       parserTerm();
     }
     System.out.println("</expression>");
+  }
+
+  boolean peekIsOperator(){
+    if(
+      peekTokenIs(TokenType.PLUS) 
+      || peekTokenIs(TokenType.MINUS) 
+      || peekTokenIs(TokenType.ASTERISK)
+      || peekTokenIs(TokenType.SLASH)
+      || peekTokenIs(TokenType.LT)
+      || peekTokenIs(TokenType.GT)
+      || peekTokenIs(TokenType.ASSIGN) //é pra utilizar assign mesmo?
+    ){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  private void expectPeekOperator(){
+    switch(peekToken.type){
+      case PLUS:
+        expectPeek(TokenType.PLUS);
+        break;
+      case MINUS:
+        expectPeek(TokenType.MINUS);
+        break;
+      case ASTERISK:
+        expectPeek(TokenType.ASTERISK);
+        break;
+      case SLASH:
+        expectPeek(TokenType.SLASH);
+        break;
+      case LT:
+        expectPeek(TokenType.LT);
+        break;
+      case GT:
+        expectPeek(TokenType.GT);
+        break;
+      case ASSIGN:
+        expectPeek(TokenType.ASSIGN);
+        break;
+      default:
+        ;
+    }
   }
 
   void parserTerm(){
