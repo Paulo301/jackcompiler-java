@@ -33,7 +33,7 @@ public class Parser {
       parserExpression();
       expectPeek(TokenType.RBRACKET);
     }
-    expectPeek(TokenType.ASSIGN);
+    expectPeek(TokenType.EQUAL);
     parserExpression();
     expectPeek(TokenType.SEMICOLON);
     System.out.println("</letStatement>");
@@ -57,7 +57,7 @@ public class Parser {
       || peekTokenIs(TokenType.SLASH)
       || peekTokenIs(TokenType.LT)
       || peekTokenIs(TokenType.GT)
-      || peekTokenIs(TokenType.ASSIGN) //é pra utilizar assign mesmo?
+      || peekTokenIs(TokenType.EQUAL) //é pra utilizar EQUAL mesmo?
     ){
       return true;
     } else {
@@ -85,8 +85,8 @@ public class Parser {
       case GT:
         expectPeek(TokenType.GT);
         break;
-      case ASSIGN:
-        expectPeek(TokenType.ASSIGN);
+      case EQUAL:
+        expectPeek(TokenType.EQUAL);
         break;
       default:
         ;

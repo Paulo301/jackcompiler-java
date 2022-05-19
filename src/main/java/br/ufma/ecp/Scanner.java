@@ -71,7 +71,7 @@ public class Scanner {
         return new Token(TokenType.MINUS, "-");
       case '=':
         advance();
-        return new Token(TokenType.ASSIGN, "=");
+        return new Token(TokenType.EQUAL, "=");
       case '*':
         advance();
         return new Token(TokenType.ASTERISK, "*");
