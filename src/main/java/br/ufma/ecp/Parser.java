@@ -28,6 +28,11 @@ public class Parser {
     System.out.println("<letStatement>");
     expectPeek(TokenType.LET);
     expectPeek(TokenType.IDENTIFIER);
+    if(peekTokenIs(TokenType.LBRACKET)){
+      expectPeek(TokenType.LBRACKET);
+      parserExpression();
+      expectPeek(TokenType.RBRACKET);
+    }
     expectPeek(TokenType.ASSIGN);
     parserExpression();
     expectPeek(TokenType.SEMICOLON);
