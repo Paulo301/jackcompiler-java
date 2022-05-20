@@ -23,7 +23,7 @@ public class App
 
     public static void main( String[] args )
     {
-        String input = "let a[1 + 2] = preco + 10 * 50;";
+        String input = "let a[1 + 2] = preco + 10 * 50 + \"palavra\" / while;";
         Parser p = new Parser(input.getBytes());
         p.parser();
 
