@@ -1,8 +1,5 @@
 package br.ufma.ecp;
 
-import java.util.Arrays;
-import java.util.List;
-
 public class Parser {
 
   private Scanner scan;
@@ -98,31 +95,6 @@ public class Parser {
 
   void parserTerm(){
     System.out.println("<term>");
-    TokenType[] keywords = new TokenType[]{
-      TokenType.WHILE, 
-      TokenType.CLASS, 
-      TokenType.CONSTRUCTOR, 
-      TokenType.FUNCTION, 
-      TokenType.METHOD, 
-      TokenType.FIELD, 
-      TokenType.STATIC, 
-      TokenType.VAR, 
-      TokenType.INT, 
-      TokenType.CHAR,
-      TokenType.BOOLEAN, 
-      TokenType.VOID, 
-      TokenType.TRUE, 
-      TokenType.FALSE, 
-      TokenType.NULL, 
-      TokenType.THIS, 
-      TokenType.LET, 
-      TokenType.DO, 
-      TokenType.IF, 
-      TokenType.ELSE, 
-      TokenType.RETURN
-    };
-
-    List<TokenType> keywordsList = Arrays.asList(keywords);
 
     switch(peekToken.type){
       case NUMBER:
@@ -134,11 +106,20 @@ public class Parser {
       case STRING:
         expectPeek(TokenType.STRING);
         break;
+      case TRUE:
+        expectPeek(TokenType.TRUE);
+        break;
+      case FALSE:
+        expectPeek(TokenType.FALSE);
+        break;
+      case NULL:
+        expectPeek(TokenType.NULL);
+        break;
+      case THIS:
+        expectPeek(TokenType.THIS);
+        break;
       default:
         ;
-    }
-    if(keywordsList.contains(peekToken.type)){
-      expectPeek(peekToken.type);
     }
     System.out.println("</term>");
   }
