@@ -23,14 +23,6 @@ public class App
 
     public static void main( String[] args )
     {
-        String input = "let a[1 + 2] = preco + 10 * 50 + \"palavra\" / while;";
-        Parser p = new Parser(input.getBytes());
-        p.parser();
-
-        // String input = "58+ 6-8";
-        // Scanner scan = new Scanner(fromFile().getBytes());
-        // for(Token tk = scan.nextToken(); tk.type != TokenType.EOF; tk = scan.nextToken()){
-        //     System.out.println(tk);
-        // }
+        
     }
 }

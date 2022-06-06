@@ -1,237 +1,180 @@
 package br.ufma.ecp;
 
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
+
+import br.ufma.ecp.token.IdentifierToken;
+import br.ufma.ecp.token.IntegerToken;
+import br.ufma.ecp.token.KeywordToken;
+import br.ufma.ecp.token.StringToken;
+import br.ufma.ecp.token.SymbolToken;
+import br.ufma.ecp.token.Token;
+import br.ufma.ecp.token.TokenType;
 
 public class Scanner {
-  private byte[] input;
-  private int current;
-  private int start;
 
-  private static final Map<String, TokenType> keywords;
+    private byte[] input;
+    private int current;
+    private int start;
 
-  static {
-    keywords = new HashMap<>();
+    private int line = 1;
 
-    keywords.put("while", TokenType.WHILE);
-    keywords.put("class", TokenType.CLASS);
-    keywords.put("constructor", TokenType.CONSTRUCTOR);
-    keywords.put("function", TokenType.FUNCTION);
-    keywords.put("method", TokenType.METHOD);
-    keywords.put("field", TokenType.FIELD);
-    keywords.put("static", TokenType.STATIC);
-    keywords.put("var", TokenType.VAR);
-    keywords.put("int", TokenType.INT);
-    keywords.put("char", TokenType.CHAR);
-    keywords.put("boolean", TokenType.BOOLEAN);
-    keywords.put("void", TokenType.VOID);
-    keywords.put("true", TokenType.TRUE);
-    keywords.put("false", TokenType.FALSE);
-    keywords.put("null", TokenType.NULL);
-    keywords.put("this", TokenType.THIS);
-    keywords.put("let", TokenType.LET);
-    keywords.put("do", TokenType.DO);
-    keywords.put("if", TokenType.IF);
-    keywords.put("else", TokenType.ELSE);
-    keywords.put("return", TokenType.RETURN);
-  }
-
-  public Scanner(byte[] input){
-    this.input = input;
-    current = 0;
-    start = 0;
-  }
-
-  public Token nextToken() {
-    skipWhitespace();
-    skipComment();
-
-    start = current;
-    char ch = peek();
-
-    if(Character.isDigit(ch)){
-      return number();
+    public Scanner(byte[] input) {
+        this.input = input;
+        current = 0;
+        start = 0;
     }
 
-    if(isIdentifierBegin(ch)){
-      return identifier();
+    public Token nextToken() {
+
+        skipWhitespace();
+
+        start = current;
+        char ch = peek();
+
+        switch (ch) {
+
+            case '"':
+                return string();
+
+            case '/':
+                if (peekNext() == '/') {
+                    skipLineComments();
+                    return nextToken();
+                } else if (peekNext() == '*') {
+                    skipBlockComments();
+                    return nextToken();
+                } else {
+                    advance();
+                    return new Token(TokenType.SLASH, line);
+                }
+
+            case 0:
+                return new Token(TokenType.EOF, line);
+            default:
+
+                if (Character.isDigit(ch)) {
+                    return number();
+                }
+
+                if (Character.isLetter(ch)) {
+                    return identifier();
+                }
+
+                if (TokenType.isSymbol(ch)) {
+                    return symbol();
+                }
+
+                throw new Error(line + ":Unexpected character: " + peek());
+        }
+
     }
 
-    if(ch == '"'){
-      return stringValue();
+    private void skipBlockComments() {
+        boolean endComment = false;
+        advance();
+
+        while (!endComment) {
+            advance();
+            char ch = peek();
+            if (ch == 0) { // eof
+                System.exit(1);
+            }
+            if (ch == '*') {
+                for (ch = peek(); ch == '*'; advance(), ch = peek())
+                    ;
+                if (ch == '/') {
+                    endComment = true;
+                    advance();
+                }
+            }
+        }
     }
 
-    switch(ch){
-      case '+':
-        advance();
-        return new Token(TokenType.PLUS, "+");
-      case '-':
-        advance();
-        return new Token(TokenType.MINUS, "-");
-      case '=':
-        advance();
-        return new Token(TokenType.EQUAL, "=");
-      case '*':
-        advance();
-        return new Token(TokenType.ASTERISK, "*");
-      case '/':
-        advance();
-        return new Token(TokenType.SLASH, "/");
-      case '&':
-        advance();
-        return new Token(TokenType.AND, "&");
-      case '|':
-        advance();
-        return new Token(TokenType.OR, "|");
-      case '~':
-        advance();
-        return new Token(TokenType.NOT, "~");
-      case '.':
-        advance();
-        return new Token(TokenType.DOT, ".");
-      case '<':
-        advance();
-        return new Token(TokenType.LT, "<");
-      case '>':
-        advance();
-        return new Token(TokenType.GT, ">");
-      case ',':
-        advance();
-        return new Token(TokenType.COMMA, ",");
-      case ';':
-        advance();
-        return new Token(TokenType.SEMICOLON, ";");
-      case '(':
-        advance();
-        return new Token(TokenType.LPAREN, "(");
-      case ')':
-        advance();
-        return new Token(TokenType.RPAREN, ")");
-      case '{':
-        advance();
-        return new Token(TokenType.LBRACE, "{");
-      case '}':
-        advance();
-        return new Token(TokenType.RBRACE, "}");
-      case '[':
-        advance();
-        return new Token(TokenType.LBRACKET, "[");
-      case ']':
-        advance();
-        return new Token(TokenType.RBRACKET, "]");
-      case 0:
-        return new Token(TokenType.EOF, "EOF");
-      default:
-        advance();
-        return new Token(TokenType.ILLEGAL, Character.toString(ch));
+    private void skipLineComments() {
+
+        for (char ch = peek(); ch != '\n' && ch != 0; advance(), ch = peek())
+            if (ch == '\n')
+                line++;
     }
-  }
 
-  private void skipWhitespace(){
-    char ch = peek();
-
-    while(ch == ' ' || ch == '\r' || ch == '\t' || ch == '\n'){
-      advance();
-      ch = peek();
-    }
-  }
-
-  private void skipComment(){
-    char ch = peek();
-
-    if(ch == '/'){
-      if((current+1) < input.length){
-        char nextCh = (char)input[current+1];
-        if(nextCh == '/'){
-          while(ch != '\n'){
+    private void skipWhitespace() {
+        char ch = peek();
+        while (ch == ' ' || ch == '\r' || ch == '\t' || ch == '\n') {
+            if (ch == '\n')
+                line++;
             advance();
             ch = peek();
-          }
-          advance();
-          skipWhitespace();
-          skipComment();
-        } else if(nextCh == '*'){
-          boolean commentOpen = true;
-          while(commentOpen){
-            if(ch != '*'){
-              advance();
-              ch = peek();
-            } else {
-              if((current+1) < input.length){
-                if((char)input[current+1] == '/'){
-                  advance();
-                  ch = peek();
-                  commentOpen = false;
-                } else {
-                  advance();
-                  ch = peek();
-                }
-              } else {
-                throw new Error("Syntax error - comment not closed");
-              }
-            }
-          }
-          advance();
-          skipWhitespace();
-          skipComment();
         }
-      }
     }
-  }
 
-  private boolean isAlphanumeric(char ch){
-    return Character.isLetter(ch) || Character.isDigit(ch);
-  }
-
-  private boolean isIdentifierBegin(char ch){
-    return Character.isLetter(ch) || (ch == '_');
-  }
-
-  private Token identifier(){
-    while(isAlphanumeric(peek()) || (peek() == '_')){
-      advance();
+    private boolean isAlphaNumeric(char ch) {
+        return Character.isLetter(ch) || Character.isDigit(ch);
     }
-    String id = new String(input, start, current-start, StandardCharsets.UTF_8);
-    TokenType type = keywords.get(id);
-    if(type == null) type = TokenType.IDENTIFIER;
-    Token token = new Token(type, id);
-    return token;
-  }
 
-  private Token stringValue(){
-    advance();
-    while(peek() != '"'){
-      advance();
+    private Token string() {
+        advance();
+        start = current;
+        while (peek() != '"' && peek() != 0) {
+            advance();
+        }
+        String s = new String(input, start, current - start, StandardCharsets.UTF_8);
+        Token token = new StringToken(s, line);
+        advance();
+        return token;
     }
-    advance();
-    String id = new String(input, start+1, current-start-2, StandardCharsets.UTF_8);
-    Token token = new Token(TokenType.STRING, id);
-    return token;
-  }
 
-  private Token number(){
-    while(Character.isDigit(peek())){
-      advance();
+    private Token identifier() {
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+        String id = new String(input, start, current - start, StandardCharsets.UTF_8);
+        TokenType type = TokenType.keyword(id);
+        if (type == null) {
+            type = TokenType.IDENTIFIER;
+            return new IdentifierToken(id, line);
+        } else {
+            return new KeywordToken(type, line);
+        }
+
     }
-    String s = new String(input, start, current-start, StandardCharsets.UTF_8);
-    Token token = new Token(TokenType.NUMBER, s);
-    return token;
-  }
 
-  private void advance(){
-    char ch = peek();
-
-    if(ch != 0){
-      current++;
+    private Token number() {
+        while (Character.isDigit(peek())) {
+            advance();
+        }
+        String s = new String(input, start, current - start, StandardCharsets.UTF_8);
+        Token token = new IntegerToken(s, line);
+        return token;
     }
-  }
 
-  private char peek(){
-    if(current < input.length){
-      return (char)input[current];
-    } else {
-      return 0;
+    private SymbolToken symbol() {
+        var ch = peek();
+        advance();
+        return new SymbolToken(TokenType.fromValue(String.valueOf(ch)), line);
     }
-  }
+
+    private void advance() {
+        char ch = peek();
+        if (ch != 0) {
+            current++;
+        }
+    }
+
+    private char peek() {
+        if (current < input.length) {
+            return (char) input[current];
+        } else {
+            return 0;
+        }
+    }
+
+    private char peekNext() {
+        int next = current + 1;
+        if (next < input.length) {
+            return (char) input[next];
+        } else {
+            return 0;
+        }
+    }
+
 }
