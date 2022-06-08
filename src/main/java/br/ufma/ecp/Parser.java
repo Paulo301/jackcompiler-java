@@ -50,13 +50,11 @@ public class Parser {
     }
 
     void parseSubroutineCall() {
-        expectPeek(IDENTIFIER);
         if(peekTokenIs(LPAREN)){
             expectPeek(LPAREN);
             parseExpressionList();
             expectPeek(RPAREN);
         } else {
-            expectPeek(IDENTIFIER);
             expectPeek(DOT);
             expectPeek(IDENTIFIER);
 
@@ -130,7 +128,6 @@ public class Parser {
         printNonTerminal("/parameterList");
     }
 
-    //letStatement | ifStatement | whileStatement | doStatement | returnStatement
     void parseSubroutineBody() {
 
         printNonTerminal("subroutineBody");
@@ -186,6 +183,7 @@ public class Parser {
         printNonTerminal("doStatement");
         
         expectPeek(DO);
+        expectPeek(IDENTIFIER);
         parseSubroutineCall();
         expectPeek(SEMICOLON);
 
@@ -217,7 +215,7 @@ public class Parser {
 
     void parseStatements() {
         printNonTerminal("statements");
-
+        
         while(peekTokenIs(LET) || peekTokenIs(IF) || peekTokenIs(WHILE) || peekTokenIs(DO) || peekTokenIs(RETURN)){
             parseStatement();
         }
@@ -264,12 +262,14 @@ public class Parser {
     void parseExpressionList() {
         printNonTerminal("expressionList");
 
-        parseExpression();
-        while(peekTokenIs(COMMA)){
-            expectPeek(COMMA);
+        if(!peekTokenIs(RPAREN)){
             parseExpression();
+            while(peekTokenIs(COMMA)){
+                expectPeek(COMMA);
+                parseExpression();
+            }
         }
-  
+
         printNonTerminal("/expressionList");
     }
 
@@ -286,6 +286,7 @@ public class Parser {
 
     void parseTerm() {
         printNonTerminal("term");
+
         switch (peekToken.type) {
             case INTEGER:
                 expectPeek(INTEGER);
@@ -306,6 +307,14 @@ public class Parser {
                     parseExpression();
                     expectPeek(RBRACKET);
                 }
+                if(peekTokenIs (LPAREN) || peekTokenIs(DOT)){
+                    parseSubroutineCall();
+                }
+                break;
+            case LPAREN:
+                expectPeek(LPAREN);
+                parseExpression();
+                expectPeek(RPAREN);
                 break;
             case MINUS:
             case NOT:
