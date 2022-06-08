@@ -39,6 +39,14 @@ public class ParserTest extends TestSupport {
         parser.parseLet();
         System.out.println(parser.XMLOutput());
     }
+
+    @Test
+    public void testParseClass() {
+        var input = "class algumaCoisa {  };";
+        var parser = new Parser(input.getBytes(StandardCharsets.UTF_8));
+        parser.parseClass();
+        System.out.println(parser.XMLOutput());
+    }
     
     @Test
     public void testParseLet() {

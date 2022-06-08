@@ -32,37 +32,84 @@ public class Parser {
 
     void parseClass() {
         printNonTerminal("class");
-   
+
+        expectPeek(CLASS);
+        expectPeek(IDENTIFIER);
+
+        expectPeek(LBRACE);
+        while(peekTokenIs(STATIC) || peekTokenIs(FIELD)){
+            parseClassVarDec();
+        }
+
+        while(peekTokenIs(CONSTRUCTOR) || peekTokenIs(FUNCTION) || peekTokenIs(METHOD)){
+            parseSubroutineDec();
+        }
+        expectPeek(RBRACE);
 
         printNonTerminal("/class");
     }
 
     void parseSubroutineCall() {
-        
-    }
+        expectPeek(IDENTIFIER);
+        if(peekTokenIs(LPAREN)){
+            expectPeek(LPAREN);
+            parseExpressionList();
+            expectPeek(RPAREN);
+        } else {
+            expectPeek(IDENTIFIER);
+            expectPeek(DOT);
+            expectPeek(IDENTIFIER);
 
-    void parseDo() {
-        printNonTerminal("doStatement");
-    
-
-        printNonTerminal("/doStatement");
+            expectPeek(LPAREN);
+            parseExpressionList();
+            expectPeek(RPAREN);
+        }
     }
 
     void parseVarDec() {
         printNonTerminal("varDec");
+
+        expectPeek(VAR);
+        expectPeek(INT, CHAR, BOOLEAN, IDENTIFIER);
+        expectPeek(IDENTIFIER);
+
+        while(peekTokenIs(COMMA)){
+            expectPeek(COMMA);
+            expectPeek(IDENTIFIER);
+        }
+
+        expectPeek(SEMICOLON);
 
         printNonTerminal("/varDec");
     }
 
     void parseClassVarDec() {
         printNonTerminal("classVarDec");
+        
+        expectPeek(STATIC, FIELD);
+        expectPeek(INT, CHAR, BOOLEAN, IDENTIFIER);
+        expectPeek(IDENTIFIER);
+        while(peekTokenIs(COMMA)){
+            expectPeek(COMMA);
+            expectPeek(IDENTIFIER);
+        }
+        expectPeek(SEMICOLON);
 
         printNonTerminal("/classVarDec");
     }
 
     void parseSubroutineDec() {
         printNonTerminal("subroutineDec");
-   
+        
+        expectPeek(CONSTRUCTOR, FUNCTION, METHOD);
+        expectPeek(VOID, INT, CHAR, BOOLEAN, IDENTIFIER);
+        expectPeek(IDENTIFIER);
+
+        expectPeek(LPAREN);
+        parseParameterList();
+        expectPeek(RPAREN);
+
+        parseSubroutineBody();
 
         printNonTerminal("/subroutineDec");
     }
@@ -70,17 +117,37 @@ public class Parser {
     void parseParameterList() {
         printNonTerminal("parameterList");
 
+        if(peekTokenIs(INT) || peekTokenIs(CHAR) || peekTokenIs(BOOLEAN) || peekTokenIs(IDENTIFIER)){
+            expectPeek(VOID, INT, CHAR, BOOLEAN, IDENTIFIER);
+            expectPeek(IDENTIFIER);
+            while(peekTokenIs(COMMA)){
+                expectPeek(COMMA);
+                expectPeek(VOID, INT, CHAR, BOOLEAN, IDENTIFIER);
+                expectPeek(IDENTIFIER);
+            }
+        }
    
         printNonTerminal("/parameterList");
     }
 
+    //letStatement | ifStatement | whileStatement | doStatement | returnStatement
     void parseSubroutineBody() {
 
         printNonTerminal("subroutineBody");
+
+        expectPeek(LBRACE);
+
+        while(peekTokenIs(VAR)){
+            parseVarDec();
+        }
+        parseStatements();
+
+        expectPeek(RBRACE);
      
         printNonTerminal("/subroutineBody");
     }
 
+    //'let' varName ( '[' expression ']' )? '=' expression ';'
     void parseLet() {
         printNonTerminal("letStatement");
         expectPeek(LET);
@@ -98,20 +165,62 @@ public class Parser {
         printNonTerminal("/letStatement");
     }
 
+    //'while' '(' expression ')' '{' statements '}'
     void parseWhile() {
         printNonTerminal("whileStatement");
+
+        expectPeek(WHILE);
+        expectPeek(LPAREN);
+        parseExpression();
+        expectPeek(RPAREN);
+
+        expectPeek(LBRACE);
+        parseStatements();
+        expectPeek(RBRACE);
   
         printNonTerminal("/whileStatement");
     }
 
+    //'do' subroutineCall ';'
+    void parseDo() {
+        printNonTerminal("doStatement");
+        
+        expectPeek(DO);
+        parseSubroutineCall();
+        expectPeek(SEMICOLON);
+
+        printNonTerminal("/doStatement");
+    }
+
+    //'if' '(' expression ')' '{' statements '}' ( 'else' '{' statements '}' )?
     void parseIf() {
         printNonTerminal("ifStatement");
+
+        expectPeek(IF);
+        expectPeek(LPAREN);
+        parseExpression();
+        expectPeek(RPAREN);
+
+        expectPeek(LBRACE);
+        parseStatements();
+        expectPeek(RBRACE);
+
+        if(peekTokenIs(ELSE)){
+            expectPeek(ELSE);
+            expectPeek(LBRACE);
+            parseStatements();
+            expectPeek(RBRACE);
+        }
 
         printNonTerminal("/ifStatement");
     }
 
     void parseStatements() {
         printNonTerminal("statements");
+
+        while(peekTokenIs(LET) || peekTokenIs(IF) || peekTokenIs(WHILE) || peekTokenIs(DO) || peekTokenIs(RETURN)){
+            parseStatement();
+        }
 
         printNonTerminal("/statements");
     }
@@ -138,9 +247,16 @@ public class Parser {
         }
     }
 
+    //'return' expression? ';'
+
     void parseReturn() {
         printNonTerminal("returnStatement");
         
+        expectPeek(RETURN);
+        if(!peekTokenIs(SEMICOLON)){
+            parseExpression();
+        }
+        expectPeek(SEMICOLON);
 
         printNonTerminal("/returnStatement");
     }
@@ -148,6 +264,11 @@ public class Parser {
     void parseExpressionList() {
         printNonTerminal("expressionList");
 
+        parseExpression();
+        while(peekTokenIs(COMMA)){
+            expectPeek(COMMA);
+            parseExpression();
+        }
   
         printNonTerminal("/expressionList");
     }
