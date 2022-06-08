@@ -38,7 +38,7 @@ public class Parser {
     }
 
     void parseSubroutineCall() {
-
+        
     }
 
     void parseDo() {
@@ -117,7 +117,25 @@ public class Parser {
     }
 
     void parseStatement() {
-
+        switch(peekToken.type){
+            case LET:
+                parseLet();
+                break;
+            case WHILE:
+                parseWhile();
+                break;
+            case IF:
+                parseIf();
+                break;
+            case RETURN:
+                parseReturn();
+                break;
+            case DO:
+                parseDo();
+                break;
+            default:
+                throw error (peekToken, "Expected a statement");
+        }
     }
 
     void parseReturn() {
