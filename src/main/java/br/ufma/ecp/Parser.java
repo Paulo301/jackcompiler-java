@@ -2,7 +2,7 @@ package br.ufma.ecp;
 
 import static br.ufma.ecp.token.TokenType.*;
 
-
+import br.ufma.ecp.SymbolTable.Kind;
 import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
 
@@ -15,6 +15,10 @@ public class Parser {
     private Token currentToken;
     private Token peekToken;
     private StringBuilder xmlOutput = new StringBuilder();
+    private VMWriter vmWriter = new VMWriter();
+    private SymbolTable symbolTable = new SymbolTable();
+
+    private String className;
 
     public Parser(byte[] input) {
         scan = new Scanner(input);
@@ -35,7 +39,7 @@ public class Parser {
 
         expectPeek(CLASS);
         expectPeek(IDENTIFIER);
-
+        className = currentToken.value();
         expectPeek(LBRACE);
         while(peekTokenIs(STATIC) || peekTokenIs(FIELD)){
             parseClassVarDec();
@@ -68,8 +72,15 @@ public class Parser {
         printNonTerminal("varDec");
 
         expectPeek(VAR);
+        var kind = Kind.VAR;
+
         expectPeek(INT, CHAR, BOOLEAN, IDENTIFIER);
+        var type = currentToken.value();
+
         expectPeek(IDENTIFIER);
+        var name = currentToken.value();
+
+        symbolTable.define(name, type, kind);
 
         while(peekTokenIs(COMMA)){
             expectPeek(COMMA);
@@ -97,17 +108,20 @@ public class Parser {
     }
 
     void parseSubroutineDec() {
+        symbolTable.startSubroutine();
+
         printNonTerminal("subroutineDec");
         
         expectPeek(CONSTRUCTOR, FUNCTION, METHOD);
         expectPeek(VOID, INT, CHAR, BOOLEAN, IDENTIFIER);
         expectPeek(IDENTIFIER);
+        var functionName = className + "." + currentToken.value();
 
         expectPeek(LPAREN);
         parseParameterList();
         expectPeek(RPAREN);
 
-        parseSubroutineBody();
+        parseSubroutineBody(functionName);
 
         printNonTerminal("/subroutineDec");
     }
@@ -128,7 +142,7 @@ public class Parser {
         printNonTerminal("/parameterList");
     }
 
-    void parseSubroutineBody() {
+    void parseSubroutineBody(String functionName) {
 
         printNonTerminal("subroutineBody");
 
@@ -137,6 +151,10 @@ public class Parser {
         while(peekTokenIs(VAR)){
             parseVarDec();
         }
+
+        var nLocals = symbolTable.varCount(Kind.VAR);
+        vmWriter.writeFunction(functionName, nLocals);
+
         parseStatements();
 
         expectPeek(RBRACE);
@@ -330,6 +348,10 @@ public class Parser {
     // funções auxiliares
     public String XMLOutput() {
         return xmlOutput.toString();
+    }
+
+    public String VMOutput() {
+        return vmWriter.vmOutput();
     }
 
     private void printNonTerminal(String nterminal) {

@@ -32,6 +32,10 @@ public class VMWriter {
     NOT;
   }
 
+  public String vmOutput () {
+    return vmOutput.toString();
+  }
+
   public void writePush(Segment segment, int index) {
     vmOutput.append (String.format ("push %s %d\n", segment.value, index));
   } 
