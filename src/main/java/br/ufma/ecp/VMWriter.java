@@ -32,31 +32,39 @@ public class VMWriter {
     NOT;
   }
 
-  private void writePush(Segment segment, int index){
+  public void writePush(Segment segment, int index) {
+    vmOutput.append (String.format ("push %s %d\n", segment.value, index));
+  } 
 
-  }  // Writes a VM push command
-  private void writePop(Segment segment, int index){
+  public void writePop(Segment segment, int index) {
+    vmOutput.append (String.format ("pop %s %d\n", segment.value, index));
+  } 
 
-  }   // Writes a VM pop command
-  private void writeArithmetic(Command command){
+  public void writeArithmetic(Command command) {
+    vmOutput.append (String.format ("\n", command.name().toLowerCase()));
+  } 
 
-  }       // Writes a VM arithmetic command
-  private void writeLabel(String label){
+  public void writeLabel(String label) {
+    vmOutput.append (String.format ("label %s\n",label));
+  } 
 
-  }               // Writes a VM label comand
-  private void writeGoto(String label){
+  public void writeGoto(String label) {
+    vmOutput.append (String.format ("goto %s\n",label));
+  }
 
-  }                // Writes a VM goto command
-  private void writeIf(String label){
+  public void writeIf(String label) {
+    vmOutput.append (String.format ("if-goto %s\n",label));
+  }
 
-  }                  // Writes a VM if-goto command
-  private void writeCall(String name, int nArgs){
+  public void writeCall(String name, int nArgs) {
+    vmOutput.append (String.format ("call %s %d\n", name, nArgs));
+  }
 
-  }      // Writes a VM call command
-  private void writeFunction(String name, int nLocals){
+  public void writeFunction(String name, int nLocals){ 
+    vmOutput.append (String.format ("function %s %d\n", name, nLocals));
+  }
 
-  } // Writes a VM function command
-  private void writeReturn(){
-
+  public void writeReturn(){ 
+    vmOutput.append (String.format ("return\n"));
   }
 }
