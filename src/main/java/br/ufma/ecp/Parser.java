@@ -222,18 +222,28 @@ public class Parser {
 
     //'while' '(' expression ')' '{' statements '}'
     void parseWhile() {
+        String labelExp = "WHILE_EXP" + whileCounter;
+        String labelEnd = "WHILE_END" + whileCounter;
+        
         printNonTerminal("whileStatement");
 
+        vmWriter.writeLabel(labelExp);
         expectPeek(WHILE);
         expectPeek(LPAREN);
         parseExpression();
         expectPeek(RPAREN);
+        vmWriter.writeIf(labelEnd);
 
         expectPeek(LBRACE);
         parseStatements();
         expectPeek(RBRACE);
+
+        vmWriter.writeGoto(labelExp);
+        vmWriter.writeLabel(labelEnd);
   
         printNonTerminal("/whileStatement");
+
+        whileCounter += 1;
     }
 
     //'do' subroutineCall ';'
@@ -283,6 +293,8 @@ public class Parser {
         }
 
         printNonTerminal("/ifStatement");
+
+        ifCounter += 1;
     }
 
     void parseStatements() {
