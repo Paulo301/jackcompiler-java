@@ -4,6 +4,7 @@ import static br.ufma.ecp.token.TokenType.*;
 
 import br.ufma.ecp.SymbolTable.Kind;
 import br.ufma.ecp.SymbolTable.Symbol;
+import br.ufma.ecp.VMWriter.Command;
 import br.ufma.ecp.VMWriter.Segment;
 import br.ufma.ecp.token.Token;
 import br.ufma.ecp.token.TokenType;
@@ -350,12 +351,32 @@ public class Parser {
                 break;
             case STRING:
                 expectPeek(STRING);
+
+                // printTerminal(curToken, toPrint);
+
+                // strvalue = tokenLiteral(curToken);
+                // vm->writePush(CONST, strvalue.length());
+                // vm->writeCall("String.new", 1);
+                // for (int i = 0; i < strvalue.length(); i++)
+                // {
+                //     vm->writePush(CONST, (int)strvalue[i]);
+                //     vm->writeCall("String.appendChar", 2);
+                // }
                 break;
             case FALSE:
             case NULL:
             case TRUE:
+                expectPeek(FALSE, NULL, TRUE);
+                // printTerminal(curToken, toPrint);
+                vmWriter.writePush(Segment.CONST, 0);
+                if(currentTokenIs(TRUE)){
+                    vmWriter.writeArithmetic(Command.NOT);
+                }
+                break;
             case THIS:
-                expectPeek(FALSE, NULL, TRUE, THIS);
+                expectPeek(THIS);
+                // printTerminal(curToken, toPrint);
+                vmWriter.writePush(Segment.POINTER, 0);
                 break;
             case IDENTIFIER:
                 expectPeek(IDENTIFIER);
