@@ -66,9 +66,13 @@ public class Parser {
             expectPeek(DOT);
             expectPeek(IDENTIFIER);
 
+            String funcName = currentToken.value();
+
             expectPeek(LPAREN);
-            parseExpressionList();
+            int counter = parseExpressionList();
             expectPeek(RPAREN);
+
+            vmWriter.writeCall(funcName, counter);
         }
     }
 
@@ -370,7 +374,8 @@ public class Parser {
         printNonTerminal("/returnStatement");
     }
 
-    void parseExpressionList() {
+    int parseExpressionList() {
+        int counter = 1;
         printNonTerminal("expressionList");
 
         if(!peekTokenIs(RPAREN)){
@@ -378,10 +383,13 @@ public class Parser {
             while(peekTokenIs(COMMA)){
                 expectPeek(COMMA);
                 parseExpression();
+                counter += 1;
             }
         }
 
         printNonTerminal("/expressionList");
+
+        return counter;
     }
 
     void parseExpression() {
