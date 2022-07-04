@@ -388,6 +388,40 @@ public class Parser {
         printNonTerminal("expression");
         parseTerm();
         while (isOperator(peekToken.type)) {
+            switch(peekToken.type){
+                case PLUS:
+                    vmWriter.writeArithmetic(Command.ADD);
+                    break;
+                case MINUS:
+                    vmWriter.writeArithmetic(Command.SUB);
+                    break;
+                case ASTERISK:
+                    vmWriter.writeCall("Math.multiply", 2);
+                    break;
+                case SLASH:
+                    vmWriter.writeCall("Math.divide", 2);
+                    break;
+                case AND:
+                    vmWriter.writeArithmetic(Command.AND);
+                    break;
+                case OR:
+                    vmWriter.writeArithmetic(Command.OR);
+                    break;
+                case LT:
+                    vmWriter.writeArithmetic(Command.LT);
+                    break;
+                case GT:
+                    vmWriter.writeArithmetic(Command.GT);
+                    break;
+                case EQ:
+                    vmWriter.writeArithmetic(Command.EQ);
+                    break;
+                case NOT:
+                    vmWriter.writeArithmetic(Command.NOT);
+                    break;
+                default:
+                    break;
+            }
             expectPeek(peekToken.type);
             parseTerm();
         }
