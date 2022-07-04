@@ -132,16 +132,21 @@ public class Parser {
         symbolTable.startSubroutine();
 
         printNonTerminal("subroutineDec");
-        
-        expectPeek(CONSTRUCTOR, FUNCTION, METHOD);
 
-        if(currentTokenIs(CONSTRUCTOR)){
+        if(peekTokenIs(CONSTRUCTOR)){
+            expectPeek(CONSTRUCTOR);
+
             vmWriter.writePush(Segment.CONST, symbolTable.varCount(Kind.FIELD));
             vmWriter.writeCall("Memory.alloc", 1);
             vmWriter.writePop(Segment.POINTER, 0);
-        } else if(currentTokenIs(METHOD)){
+        } else if(peekTokenIs(METHOD)){
+            symbolTable.define("this", className, Kind.ARG);
+            expectPeek(METHOD);
+
             vmWriter.writePush(Segment.ARG, 0);
             vmWriter.writePop(Segment.POINTER, 0);
+        } else {
+            expectPeek(FUNCTION);
         }
 
         expectPeek(VOID, INT, CHAR, BOOLEAN, IDENTIFIER);
@@ -284,6 +289,7 @@ public class Parser {
         expectPeek(RPAREN);
 
         vmWriter.writeIf(labelTrue);
+        vmWriter.writeGoto(labelFalse);
 
         vmWriter.writeLabel(labelTrue);
         expectPeek(LBRACE);
@@ -293,13 +299,12 @@ public class Parser {
 
         if(peekTokenIs(ELSE)){
             expectPeek(ELSE);
-            vmWriter.writeGoto(labelFalse);
 
             vmWriter.writeLabel(labelFalse);
             expectPeek(LBRACE);
             parseStatements();
             expectPeek(RBRACE);
-            vmWriter.writeGoto(labelEnd);
+            vmWriter.writeLabel(labelEnd);
         }
 
         printNonTerminal("/ifStatement");
