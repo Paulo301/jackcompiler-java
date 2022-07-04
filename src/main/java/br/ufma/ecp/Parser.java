@@ -353,15 +353,14 @@ public class Parser {
                 expectPeek(STRING);
 
                 // printTerminal(curToken, toPrint);
+                String strValue = currentToken.value();
 
-                // strvalue = tokenLiteral(curToken);
-                // vm->writePush(CONST, strvalue.length());
-                // vm->writeCall("String.new", 1);
-                // for (int i = 0; i < strvalue.length(); i++)
-                // {
-                //     vm->writePush(CONST, (int)strvalue[i]);
-                //     vm->writeCall("String.appendChar", 2);
-                // }
+                vmWriter.writePush(Segment.CONST, strValue.length());
+                vmWriter.writeCall("String.new", 1);
+                for(int i = 0; i < strValue.length(); i++){
+                    vmWriter.writePush(Segment.CONST, strValue.charAt(i));
+                    vmWriter.writeCall("String.appendChar", 2);
+                }
                 break;
             case FALSE:
             case NULL:
