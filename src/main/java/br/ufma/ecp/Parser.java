@@ -20,6 +20,7 @@ public class Parser {
     private StringBuilder xmlOutput = new StringBuilder();
     private VMWriter vmWriter = new VMWriter();
     private SymbolTable symbolTable = new SymbolTable();
+    private int ifCounter = 0, whileCounter = 0; 
 
     private String className;
 
@@ -242,6 +243,8 @@ public class Parser {
         expectPeek(DO);
         expectPeek(IDENTIFIER);
         parseSubroutineCall();
+
+        vmWriter.writePop(Segment.TEMP, 0);
         expectPeek(SEMICOLON);
 
         printNonTerminal("/doStatement");
@@ -251,20 +254,32 @@ public class Parser {
     void parseIf() {
         printNonTerminal("ifStatement");
 
+        String labelTrue = "IF_TRUE" + ifCounter;
+        String labelFalse = "IF_FALSE" + ifCounter;
+        String labelEnd = "IF_END" + ifCounter;
+
         expectPeek(IF);
         expectPeek(LPAREN);
         parseExpression();
         expectPeek(RPAREN);
 
+        vmWriter.writeIf(labelTrue);
+
+        vmWriter.writeLabel(labelTrue);
         expectPeek(LBRACE);
         parseStatements();
         expectPeek(RBRACE);
+        vmWriter.writeGoto(labelEnd);
 
         if(peekTokenIs(ELSE)){
             expectPeek(ELSE);
+            vmWriter.writeGoto(labelFalse);
+
+            vmWriter.writeLabel(labelFalse);
             expectPeek(LBRACE);
             parseStatements();
             expectPeek(RBRACE);
+            vmWriter.writeGoto(labelEnd);
         }
 
         printNonTerminal("/ifStatement");
