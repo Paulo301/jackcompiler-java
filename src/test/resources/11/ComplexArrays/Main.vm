@@ -204,7 +204,7 @@ pop pointer 1
 push that 0
 call Output.printInt 1
 pop temp 0
-call Output.println 1
+call Output.println 0
 pop temp 0
 push constant 45
 call String.new 1
@@ -307,7 +307,7 @@ pop pointer 1
 push that 0
 call Output.printInt 1
 pop temp 0
-call Output.println 1
+call Output.println 0
 pop temp 0
 push constant 44
 call String.new 1
@@ -404,7 +404,7 @@ pop temp 0
 push local 2
 call Output.printInt 1
 pop temp 0
-call Output.println 1
+call Output.println 0
 pop temp 0
 push constant 0
 pop local 2
@@ -572,7 +572,7 @@ pop pointer 1
 push that 0
 call Output.printInt 1
 pop temp 0
-call Output.println 1
+call Output.println 0
 pop temp 0
 push constant 46
 call String.new 1
@@ -677,7 +677,7 @@ pop pointer 1
 push that 0
 call Output.printInt 1
 pop temp 0
-call Output.println 1
+call Output.println 0
 pop temp 0
 push constant 0
 return

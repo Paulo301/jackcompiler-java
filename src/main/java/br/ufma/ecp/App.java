@@ -42,13 +42,13 @@ public class App
     } 
 
     public static void main(String[] args) {
-        if (args.length != 1) {
-            System.err.println("Please provide a single file path argument.");
-            System.exit(1);
-        }
+        // if (args.length != 1) {
+        //     System.err.println("Please provide a single file path argument.");
+        //     System.exit(1);
+        // }
 
-        File file = new File(args[0]);
-        // File file = new File("/home/paulo/jackcompiler-java/src/test/resources/11/Square");
+        // File file = new File(args[0]);
+        File file = new File("/home/paulo/jackcompiler-java/src/test/resources/11/Pong");
 
         if (!file.exists()) {
             System.err.println("The file doesn't exist.");

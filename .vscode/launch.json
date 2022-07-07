@@ -21,7 +21,7 @@
             "type": "java",
             "name": "Launch App",
             "request": "launch",
-            "args": "/home/paulo/jackcompiler-java/src/test/resources/11/Square",
+            "args": "/home/paulo/jackcompiler-java/src/test/resources/11",
             "mainClass": "br.ufma.ecp.App",
             "projectName": "vmtranslator"
         }

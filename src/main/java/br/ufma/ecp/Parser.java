@@ -67,7 +67,7 @@ public class Parser {
             expectPeek(LPAREN);
             vmWriter.writePush(Segment.POINTER, 0);
 
-            nArgs = parseExpressionList();
+            nArgs = parseExpressionList() + 1;
             expectPeek(RPAREN);
 
             funcName = className + "." + ident;
@@ -81,6 +81,7 @@ public class Parser {
             } else {
                 vmWriter.writePush(kind2Segment(symbol.kind()), symbol.index());
                 funcName = symbol.type() + "." + funcName;
+                nArgs = 1;
             }
 
             expectPeek(LPAREN);
@@ -149,6 +150,8 @@ public class Parser {
     }
 
     void parseSubroutineDec() {
+        ifCounter = 0;
+        whileCounter = 0;
         symbolTable.startSubroutine();
 
         printNonTerminal("subroutineDec");
@@ -273,6 +276,8 @@ public class Parser {
     void parseWhile() {
         String labelExp = "WHILE_EXP" + whileCounter;
         String labelEnd = "WHILE_END" + whileCounter;
+
+        whileCounter += 1;
         
         printNonTerminal("whileStatement");
 
@@ -292,8 +297,6 @@ public class Parser {
         vmWriter.writeLabel(labelEnd);
   
         printNonTerminal("/whileStatement");
-
-        whileCounter += 1;
     }
 
     //'do' subroutineCall ';'
@@ -317,6 +320,8 @@ public class Parser {
         String labelTrue = "IF_TRUE" + ifCounter;
         String labelFalse = "IF_FALSE" + ifCounter;
         String labelEnd = "IF_END" + ifCounter;
+
+        ifCounter += 1;
 
         expectPeek(IF);
         expectPeek(LPAREN);
@@ -347,8 +352,6 @@ public class Parser {
         }
 
         printNonTerminal("/ifStatement");
-
-        ifCounter += 1;
     }
 
     void parseStatements() {
@@ -403,11 +406,12 @@ public class Parser {
     }
 
     int parseExpressionList() {
-        int counter = 1;
+        int counter = 0;
         printNonTerminal("expressionList");
 
         if(!peekTokenIs(RPAREN)){
             parseExpression();
+            counter += 1;
             while(peekTokenIs(COMMA)){
                 expectPeek(COMMA);
                 parseExpression();

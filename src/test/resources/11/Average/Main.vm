@@ -177,7 +177,7 @@ push local 1
 call Math.divide 2
 call Output.printInt 1
 pop temp 0
-call Output.println 1
+call Output.println 0
 pop temp 0
 push constant 0
 return
